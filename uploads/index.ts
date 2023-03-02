@@ -122,7 +122,7 @@ async function uploadStock(timeseries: Record<string, any>, ticker: string) {
     const data = timeseries[time];
     const doc = {
       ticker: ticker,
-      time: date,
+      timestamp: date,
       open: data["1. open"],
       high: data["2. high"],
       low: data["3. low"],
@@ -149,8 +149,9 @@ async function uploadNews(companies: ICompany[]) {
 async function uploadSingleNews(data: any, ticker: string) {
   for (let news of data) {
     const doc = { 
+      ticker: ticker,
       headline:  news.title,
-      time: new Date(news.publishedAt).getDate(),
+      timestamp: new Date(news.publishedAt).getDate(),
       source: news.source.Name,
       url: news.url
     };
@@ -170,8 +171,8 @@ async function uploadDocument(doc: any, table: string) {
 
 
 async function main() {
-  await getStocks(TICKERS);
-  await getNews(COMPANIES);
+  // await getStocks(TICKERS);
+  // await getNews(COMPANIES);
   await uploadStocks(TICKERS);
   await uploadNews(COMPANIES);
 }

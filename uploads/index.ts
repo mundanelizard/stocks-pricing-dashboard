@@ -123,11 +123,11 @@ async function uploadStock(timeseries: Record<string, any>, ticker: string) {
     const doc = {
       ticker: ticker,
       timestamp: date,
-      open: data["1. open"],
-      high: data["2. high"],
-      low: data["3. low"],
-      close: data["4. close"],
-      volume: data["5. volume"],
+      open: Number(data["1. open"]),
+      high: Number(data["2. high"]),
+      low: Number(data["3. low"]),
+      close: Number(data["4. close"]),
+      volume: Number(data["5. volume"]),
     }
 
     await uploadDocument(doc, "stocks");

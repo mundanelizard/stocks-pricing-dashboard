@@ -1,7 +1,6 @@
-import AWS from 'aws-sdk';
-import fs from 'fs/promises';
-
-// Perform data prediction
+import AWS from "aws-sdk";
+import fs from "fs/promises";
+import { Buffer } from 'buffer';
 
 AWS.config.update({
   region: "us-east-1",
@@ -10,32 +9,33 @@ AWS.config.update({
 const sageMaker = new AWS.SageMakerRuntime({});
 
 export async function handler(event) {
-  // perform prediction for each new input data.
-  const dataset = JSON.parse(await fs.readFile('test-data.json'));
+  const dataset = JSON.parse(await fs.readFile("synthetic-test-data.json"));
   const body = {
-    "instances": [dataset],
-    "configurator": {
-      "num_samples": 50,
-      "output_types": ["mean", "quantiles", "samples"],
-      "quantiles": ["0.1", "0.9"]
-    }
-  }
+    instances: [dataset],
+    configuration: {
+      num_samples: 50,
+      output_types: ["mean", "quantiles", "samples"],
+      quantiles: ["0.1", "0.9"],
+    },
+  };
 
+  // Parameters for calling endpoint
   const params = {
-    EndpointName: endpoint,
+    EndpointName: "synthetic-endpoint",
     Body: JSON.stringify(body),
     ContentType: "application/json",
     Accept: "application/json",
   };
 
-  const { Data: prediction } = await sageMaker.invokeEndpoint(params).promise();
+  const { Body } = await sageMaker.invokeEndpoint(params).promise();
 
-  // save prediction in a database
-  console.log(prediction);
-
+  const prediction = JSON.parse(Buffer.from(Body).toString("utf8"));
 
   return {
     statusCode: 200,
-    body: JSON.stringify(JSON.stringify(prediction))
-  }
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(prediction),
+  };
 }

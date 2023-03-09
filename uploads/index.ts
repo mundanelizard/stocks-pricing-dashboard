@@ -118,11 +118,10 @@ async function uploadStocks(tickers: string[]) {
 
 async function uploadStock(timeseries: Record<string, any>, ticker: string) {
   for (let time in timeseries) {
-    const date = new Date(time).getDate();
     const data = timeseries[time];
     const doc = {
       ticker: ticker,
-      timestamp: date,
+      timestamp: new Date(time).getTime(),
       open: Number(data["1. open"]),
       high: Number(data["2. high"]),
       low: Number(data["3. low"]),
@@ -151,7 +150,7 @@ async function uploadSingleNews(data: any, ticker: string) {
     const doc = { 
       ticker: ticker,
       headline:  news.title,
-      timestamp: new Date(news.publishedAt).getDate(),
+      timestamp: new Date(news.publishedAt).getTime(),
       source: news.source.Name,
       url: news.url
     };

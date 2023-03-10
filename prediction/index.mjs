@@ -29,18 +29,20 @@ export async function handler(event) {
     return acc;
   }, {});
 
+  console.log(JSON.stringify(datastore, null, 4));
+
   for (const record of event.Records) {
     if (record.eventName !== "INSERT") continue;
+
+    const { timestamp, close, ticker } = record.dynamodb.NewImage;
 
     const data = datastore[ticker.S];
 
     if (!data) continue;
 
-    const { timestamp, close, ticker } = record.dynamodb.NewImage;
-
     data.start = data.start.N || getDate(timestamp.N);
 
-    data.target.push(close.N);
+    data.target.push(Number(close.N));
 
     await deletePrediction(ticker.S, timestamp.N);
   }
@@ -48,14 +50,16 @@ export async function handler(event) {
   const predictions = Object
     .keys(datastore)
     .map(async (ticker) => {
+      if (!datastore[ticker].start) return;
+
       const time = new Date(datastore[ticker].start).getTime();
       const query = generateParams(datastore[ticker], ticker);
       const prediction = await handlePrediction(query)
       const startTime = time + (datastore[ticker].target.length * ONE_WEEK_IN_MILLI)
-      await updatePredictionTable(prediction, ticker, time);
+      return await updatePredictionTable(prediction, ticker, startTime);
   });
 
-  await Promise.all(predictions);
+  await Promise.all(predictions)
 }
 
 async function handlePrediction(query) {
@@ -78,12 +82,17 @@ async function updatePredictionTable(prediction, ticker, timestamp) {
         timestamp: timestamp,
         ticker: ticker,
       },
-      UpdateExpression: "SET max = :max, min = :min, mean = :mean",
+      UpdateExpression: "SET #mx = :mx, #mn = :mn, #m = :m",
       ExpressionAttributeValues: {
-        ":max": max[i],
-        ":mean": mean[i],
-        ":min": min[i],
+        ":mx": max[i],
+        ":m": mean[i],
+        ":mn": min[i],
       },
+      ExpressionAttributeNames: {
+        "#mx": "max",
+        "#m": "mean",
+        "#mn": "min",
+      }
     };
 
     return await client.update(params).promise();
@@ -113,20 +122,23 @@ function generateParams(data, ticker) {
   return params;
 }
 
-async function deletePrediction(ticker, timestamp) {
+function deletePrediction(ticker, timestamp) {
   const query = {
     TableName: "predictions",
     Key: {
       ticker: ticker,
-      timestamp: timestamp,
+      timestamp: Number(timestamp),
     },
   };
 
-  await client.delete(query).promise();
+  console.log(query);
+  return client.delete(query).promise();
 }
 
-function getDate() {
-  const date = new Date(timestamp.N);
-  const month = date.getMonth() + 1;
-  return `${date.getFullYear()}-${month}-${date.getDate()} 00:00:00`;
+function getDate(timestamp) {
+  console.log("Timestamp", timestamp);
+  const date = new Date(Number(timestamp));
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0"); 
+  return `${date.getFullYear()}-${month}-${d} 12:00:00`;
 }

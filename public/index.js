@@ -119,7 +119,7 @@ function drawSentimentChart() {
     name: active + " Sentiment (mixed)",
     y: unpack(sentiments, "Mixed"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "orange" },
   };
 
   const negative = {
@@ -128,7 +128,7 @@ function drawSentimentChart() {
     name: active + " Sentiment (negative)",
     y: unpack(sentiments, "Negative"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "red" },
   };
 
   const neutral = {
@@ -137,7 +137,7 @@ function drawSentimentChart() {
     name: active + " Sentiment (neutral)",
     y: unpack(sentiments, "Neutral"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "yellow" },
   };
 
   const positive = {
@@ -146,7 +146,7 @@ function drawSentimentChart() {
     name: active + " Sentiment (positive)",
     y: unpack(sentiments, "Positive"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "green" },
   };
 
   const data = [mixed, negative, neutral, positive];
@@ -190,7 +190,7 @@ function drawStockChart() {
 
   const data = [
     getCandleStickChart(active, prices),
-    ...getTimeSeriesChart(active, predictions),
+    ...getTimeSeriesChart(active, predictions, prices[prices.length - 1]["timestamp"]),
   ];
 
   const maxPrice = Math.max(...unpack(prices, "high")) + 50;
@@ -235,10 +235,10 @@ function getCandleStickChart(stock, prices) {
   return {
     x: unpack(prices, "timestamp", getDate), // an array of string dates in format
     close: unpack(prices, "close"),
-    decreasing: { line: { color: "#7F7F7F" } },
+    decreasing: { line: { color: "red" } },
     high: unpack(prices, "high"),
-    increasing: { line: { color: "#17BECF" } },
-    line: { color: "rgba(31,119,180,1)" },
+    increasing: { line: { color: "green" } },
+    line: { color: "black" },
     low: unpack(prices, "low"),
     open: unpack(prices, "open"),
     type: "candlestick",
@@ -248,33 +248,44 @@ function getCandleStickChart(stock, prices) {
   };
 }
 
-function getTimeSeriesChart(stock, predictions) {
+function getTimeSeriesChart(stock, predictions, minTime) {
+
   const time = unpack(predictions, "timestamp", getDate);
+  const startIndex = predictions.findIndex(({ timestamp: t }) => t > minTime);
+  const trimmedPredictions = predictions
+  
+  // .slice(startIndex);
+
+  // console.log(minTime);
+  // console.log(time);
+  // console.log(startIndex);
+  // console.log(trimmedPredictions);
+
   const mean = {
     type: "scatter",
     mode: "lines",
     name: stock + " Prediction (mean)",
-    y: unpack(predictions, "mean"),
+    y: unpack(trimmedPredictions, "mean"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "yellow" },
   };
 
   const high = {
     type: "scatter",
     mode: "lines",
     name: stock + " Prediction (max)",
-    y: unpack(predictions, "max"),
+    y: unpack(trimmedPredictions, "max"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "green" },
   };
 
   const low = {
     type: "scatter",
     mode: "lines",
     name: stock + " Prediction(min)",
-    y: unpack(predictions, "min"),
+    y: unpack(trimmedPredictions, "min"),
     x: time,
-    line: { color: "#17BECF" },
+    line: { color: "red" },
   };
 
   return [mean, high, low];

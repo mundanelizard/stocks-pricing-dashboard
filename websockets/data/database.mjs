@@ -62,42 +62,38 @@ function flattenRecord(record) {
 }
 
 export async function getStockPredictionsAndSentiments() {
+  console.log("Getting Stock Prediction and Sentiments");
   const data = generateStocksMap();
 
   for (const stock of STOCKS) {
-    const KeyConditionExpression = "ticker = :t";
-    const ExpressionAttributeValues = { ":t": { S: stock } };
+    const query = {
+      KeyConditionExpression: "ticker = :t",
+      ExpressionAttributeValues: { ":t": stock },
+    };
 
-    data[stock].sentiments = (
-      await client
-        .query({
-          TableName: "sentiments",
-          KeyConditionExpression,
-          ExpressionAttributeValues,
-        })
-        .promise()
-    ).Items;
-    data[stock].predictions = (
-      await client
-        .query({
-          TableName: "predictions",
-          KeyConditionExpression,
-          ExpressionAttributeValues,
-        })
-        .promise()
-    ).Items;
-    data[stock].stocks = (
-      await client
-        .query({
-          TableName: "stocks",
-          KeyConditionExpression,
-          ExpressionAttributeValues,
-        })
-        .promise()
-    ).Items;
+    console.log("Getting", stock, "sentiment");
+    data[stock].sentiments = await getSentiments(quert);
+
+    console.log("Getting", stock, "predictions");
+    data[stock].predictions = await getPredictions(query);
+
+    console.log("Getting", stock, "stocks");
+    data[stock].stocks = await getStocks(query);
   }
 
   return data;
+}
+
+async function getSentiments(query) {
+  return (await client.query({...query, TableName: "sentiments"}).promise()).Items;
+}
+
+async function getStocks(query) {
+  return (await client.query({...query, TableName: "stocks"}).promise()).Items;
+}
+
+async function getPredictions(query) {
+  return (await client.query({...query, TableName: "predictions"}).promise()).Items;
 }
 
 const generateStocksMap = () =>

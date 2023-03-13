@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Stock Price Updates</title>
+  <link rel="stylesheet" href="./main.css">
+  <script src="https://cdn.plot.ly/plotly-2.18.2.min.js"></script>
+</head>
+
+<body>
+  <div class="content">
+    <header>
+      <select class="select-stock">
+        <option>Select Stock</option>
+      </select>
+    </header>
+    <div class="row">
+      <div class="right">
+        <div id="stock-chart" class="stock-chart">
+          <div class="spinner"></div>
+        </div>
+      </div>
+      <div class="left">
+        <div class="sentiment">
+          <b>Loading...</b>
+          <div></div>
+        </div>
+        <div id="sentiment-chart" class="sentiment-chart">
+          <div class="spinner"></div>
+        </div>
+        <div class="sentiment-history">
+          <h3>Sentiment History</h3>
+          <div class="sentiment-list">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="./index.js"></script>
+</body>
+
+</html>

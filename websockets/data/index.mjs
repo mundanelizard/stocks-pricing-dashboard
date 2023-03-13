@@ -17,7 +17,7 @@ export const handler = async (event) => {
 
   const id = event.requestContext.connectionId;
 
-  console.log("Client", id, "is requesting");
+  console.log("Client", id, "is requesting data");
 
   await sendData(domainName, stage, id);
 

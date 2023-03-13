@@ -19,7 +19,7 @@ export async function dispatchUpdate(domain, stage, records) {
     ids.map(
       async (id) =>
         await agwma
-          .postToConnection({ ConnectionId: id, Data: updates })
+          .postToConnection({ ConnectionId: id, Data: JSON.stringify(updates) })
           .promise()
           .catch(async () => await deleteClient(id))
     )
@@ -29,7 +29,8 @@ export async function dispatchUpdate(domain, stage, records) {
 export async function sendData(domain, stage, id) {
   const stockAndSentiments = await getStockPredictionsAndSentiments();
   const agwma = getNewAGWMA(domain, stage);
-  return agwma.postToConnection({ ConnectionId: id, Data: stockAndSentiments });
+  console.log("Posting back data to ", id);
+  return await agwma.postToConnection({ ConnectionId: id, Data: JSON.stringify(stockAndSentiments) }).promise();
 }
 
 const getNewAGWMA = (domain, stage) =>

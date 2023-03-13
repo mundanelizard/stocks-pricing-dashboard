@@ -16,6 +16,7 @@
     "@aws-sdk/client-dynamodb": "^3.272.0",
     "@types/node": "^18.14.2",
     "aws-sdk": "^2.1323.0",
+    "dotenv": "^16.0.3",
     "newsapi": "^2.4.1",
     "request": "^2.88.2"
   },

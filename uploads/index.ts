@@ -2,6 +2,7 @@ import request from "request";
 import fs from "fs/promises";
 import path from "path";
 import AWS from "aws-sdk";
+import "dotenv/config";
 const NewsAPI = require("newsapi");
 
 const newsapi = new NewsAPI("e44499f26ffe41229e7abbe6ea413f6c");
@@ -102,8 +103,8 @@ AWS.config.update({
 let client = new AWS.DynamoDB.DocumentClient();
 
 async function getFileContentAsJSON(fileName: string): Promise<any> {
-  const data = await fs.readFile(fileName);
-  return JSON.stringify(data);
+  const data = await fs.readFile(fileName, "utf-8");
+  return JSON.parse(data);
 }
 
 async function uploadStocks(tickers: string[]) {
@@ -136,7 +137,6 @@ async function uploadStock(timeseries: Record<string, any>, ticker: string) {
 async function uploadNews(companies: ICompany[]) {
   const dir = path.join(__dirname, "news");
   // handles news uploading to dynamodb
-  
 
   for (let {ticker} of companies) {
     const data = await getFileContentAsJSON(path.join(dir, ticker + '.json'));

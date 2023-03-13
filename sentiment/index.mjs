@@ -18,23 +18,27 @@ export const handler = async (event) => {
 };
 
 async function detectSentiment(image) {
-  const request = {
-    LanguageCode: "en",
-    Text: image.headline.S,
-  };
-
-  const data = await comprehend.detectSentiment(request).promise();
-
-  console.log(JSON.stringify(data, null, 4));
-
-  const doc = {
-    ...data.SentimentScore,
-    sentiment: data.Sentiment,
-    ticker: image.ticker.S,
-    timestamp: image.timestamp.N,
-  };
-
-  console.log(JSON.stringify(doc, null, 4));
-
-  await client.put({ TableName: "sentiments", Item: doc }).promise().catch(console.log);
+  try {
+    const request = {
+      LanguageCode: "en",
+      Text: image.headline.S,
+    };
+  
+    const data = await comprehend.detectSentiment(request).promise();
+  
+    console.log(JSON.stringify(data, null, 4));
+  
+    const doc = {
+      ...data.SentimentScore,
+      sentiment: data.Sentiment,
+      ticker: image.ticker.S,
+      timestamp: image.timestamp.N,
+    };
+  
+    console.log(JSON.stringify(doc, null, 4));
+  
+    await client.put({ TableName: "sentiments", Item: doc }).promise()
+  } catch(error) {
+    console.error("Lambda Error: ", error);
+  }
 }

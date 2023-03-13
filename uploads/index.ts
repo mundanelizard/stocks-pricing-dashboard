@@ -147,6 +147,9 @@ async function uploadNews(companies: ICompany[]) {
 
 async function uploadSingleNews(data: any, ticker: string) {
   for (let news of data) {
+    if (!news.title) {
+      continue;
+    }
     const doc = { 
       ticker: ticker,
       headline:  news.title,
@@ -154,7 +157,7 @@ async function uploadSingleNews(data: any, ticker: string) {
       source: news.source.Name,
       url: news.url
     };
-    await uploadDocument(doc, "news");
+    // await uploadDocument(doc, "news");
   }
 }
 

@@ -18,23 +18,30 @@ connection.onopen = function (event) {
   }
 };
 
-connection.onmessage = function (event) {
-  const newStock = JSON.parse(event.data);
+connection.onmessage = async function (event) {
+  const data = JSON.parse(event.data);
 
-  console.log("Recieved stock", newStock);
+  if (!data.url) {
+    console.error("Couldn't retrieve data url", data);
+    return;
+  }
 
-  if (!newStock["GOOGL"]) {
-    return console.error(newStock);
+  const newStocks = await (await fetch(data.url)).json();
+
+  console.log("Recieved stock", newStocks);
+
+  if (!newStocks["GOOGL"]) {
+    return console.error(newStocks);
   }
 
   if (!hasFetched) {
     document.querySelector(".stock-chart").innerHTML = "";
     document.querySelector(".sentiment-chart").innerHTML = "";
-    stocks = newStock;
+    stocks = newStocks;
     active = "GOOGL";
     hasFetched = true;
   } else {
-    appendStockUpdate(newStock);
+    appendStockUpdate(newStocks);
   }
 
   // get the name of the available stocks
@@ -273,20 +280,20 @@ function getTimeSeriesChart(stock, predictions) {
   return [mean, high, low];
 }
 
-function appendStockUpdate(newStock) {
-  for (const stock in newStock) {
+function appendStockUpdate(newStocks) {
+  for (const stock in newStocks) {
     if (!stocks[stock]) continue;
 
     stocks[stock].sentiments = [
       ...stocks[stock].sentiments,
-      ...newStock[stock].sentiments,
+      ...newStocks[stock].sentiments,
     ];
 
     stocks[stock].predictions = [
       ...stocks[stock].predictions,
-      ...newStock[stock].predictions,
+      ...newStocks[stock].predictions,
     ];
-    stocks[stock].stocks = [...stocks[stock].stocks, ...newStock[stock].stocks];
+    stocks[stock].stocks = [...stocks[stock].stocks, ...newStocks[stock].stocks];
   }
 }
 

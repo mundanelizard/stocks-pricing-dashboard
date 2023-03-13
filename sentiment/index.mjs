@@ -36,5 +36,5 @@ async function detectSentiment(image) {
 
   console.log(JSON.stringify(doc, null, 4));
 
-  await client.put({ TableName: "sentiments", Item: doc }).promise();
+  await client.put({ TableName: "sentiments", Item: doc }).promise().catch(console.log);
 }

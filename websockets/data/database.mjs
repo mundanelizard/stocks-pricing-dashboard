@@ -72,7 +72,7 @@ export async function getStockPredictionsAndSentiments() {
     };
 
     console.log("Getting", stock, "sentiment");
-    data[stock].sentiments = await getSentiments(quert);
+    data[stock].sentiments = await getSentiments(query);
 
     console.log("Getting", stock, "predictions");
     data[stock].predictions = await getPredictions(query);

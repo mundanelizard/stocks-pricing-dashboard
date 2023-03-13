@@ -172,7 +172,7 @@ async function uploadDocument(doc: any, table: string) {
 async function main() {
   // await getStocks(TICKERS);
   // await getNews(COMPANIES);
-  await uploadStocks(TICKERS);
+  // await uploadStocks(TICKERS);
   await uploadNews(COMPANIES);
 }
 

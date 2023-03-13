@@ -5,6 +5,9 @@ import {
   getStockPredictionsAndSentiments,
   formatRecords,
 } from "./database.mjs";
+import {randomUUID} from "crypto"
+
+const s3 = new AWS.S3({params: {Bucket: ''}});
 
 export async function dispatchUpdate(domain, stage, records) {
   const ids = (await getClientIds())?.map(({ id }) => id);
@@ -13,7 +16,7 @@ export async function dispatchUpdate(domain, stage, records) {
     throw new Error("Could not retrieve client ids " + ids);
   }
   const agwma = getNewAGWMA(domain, stage);
-  const updates = formatRecords(records);
+  const updates = await compress(formatRecords(records));
 
   return await Promise.all(
     ids.map(
@@ -27,10 +30,21 @@ export async function dispatchUpdate(domain, stage, records) {
 }
 
 export async function sendData(domain, stage, id) {
-  const stockAndSentiments = await getStockPredictionsAndSentiments();
+  const stockAndSentiments = await compress(await getStockPredictionsAndSentiments());
   const agwma = getNewAGWMA(domain, stage);
   console.log("Posting back data to ", id);
   return await agwma.postToConnection({ ConnectionId: id, Data: JSON.stringify(stockAndSentiments) }).promise();
+}
+
+async function compress(stocks) {
+  const data = JSON.stringify(stocks);
+  const key = randomUUID();
+
+  const { Location } = await s3.upload({ Body: data, ContentType: "application/json", Bucket: "cst3130-cw2-mdx/responses", Key: key }).promise();
+
+  return {
+    url: Location,
+  }
 }
 
 const getNewAGWMA = (domain, stage) =>

@@ -14,26 +14,33 @@ async function main() {
 }
 
 async function processData(ticker: string) {
+  // gets the path to the ticker library
   const tickerDir = path.join(__dirname, "tickers", ticker + ".json");
+
+  // extract "Weekly Time Series" as data key for easy process
   const { ["Weekly Time Series"]: data } = JSON.parse(
     await fs.readFile(tickerDir, "utf-8")
   );
 
+  // get all the keys of the "Weekly Time Series" map and their length
   const keys = Object.keys(data);
   const dataLength = keys.length;
 
   const trainSize = Math.ceil(0.9 * dataLength);
 
+  // construct the training object
   const train = {
     start: "",
     target: [] as string[],
   };
 
+  // construct the test object
   const test = {
     start: "",
     target: [] as string[],
   };
 
+  // extract each data from the list for reformating
   for (let i = 0; i < dataLength; i++) {
     const time = keys[i];
     let { ["4. close"]: close } = data[time];

@@ -8,6 +8,7 @@ const trainTarget = [];
 
 console.log(target.length);
 
+// split data into 2, the first 400 as training set and the later half as test set.
 for (let i = 0; i < target.length; i++) {
   if (i < 400) {
     trainTarget.push(target[i]);

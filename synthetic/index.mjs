@@ -9,7 +9,10 @@ AWS.config.update({
 const sageMaker = new AWS.SageMakerRuntime({});
 
 export async function handler(event) {
+  // reading in the test sentiment data
   const dataset = JSON.parse(await fs.readFile("synthetic-test-data.json"));
+
+  // formating the data to match sagemaker schema
   const body = {
     instances: [dataset],
     configuration: {
@@ -27,10 +30,13 @@ export async function handler(event) {
     Accept: "application/json",
   };
 
+  // invoking and extracing the response
   const { Body } = await sageMaker.invokeEndpoint(params).promise();
 
+  // parsing the response to a string and then to javascript object
   const prediction = JSON.parse(Buffer.from(Body).toString("utf8"));
 
+  // return the prediction to the requesting system
   return {
     statusCode: 200,
     headers: {

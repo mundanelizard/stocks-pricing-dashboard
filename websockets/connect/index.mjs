@@ -1,20 +1,22 @@
 import AWS from "aws-sdk";
 
+//Create new DocumentClient
 let client = new AWS.DynamoDB.DocumentClient();
 
 export const handler = async(event) => {
-    let id = event.requestContext.connectionId;
-    console.log("Disconnecting", id);
+    const id = event.requestContext.connectionId;
+    console.log("Connecting", id);
     
-    let params = {
+    const params = {
         TableName: "clients",
-        Key: {
+        Item: {
             id: id,
         }
     }
     
-    await client.delete(params).promise();
-
+    // saves connection id to the clients table
+    await client.put(params).promise();
+    
     return {
         statusCode: 200,
         body: JSON.stringify({ success: true, content: { id } })

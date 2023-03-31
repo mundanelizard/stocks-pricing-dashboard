@@ -183,7 +183,11 @@ function deletePrediction(ticker, timestamp) {
   return client.delete(query).promise();
 }
 
-// gets a date in standard ISO-ish (YYYY-MM-DD HH:MM:SS) format
+/**
+ * Converts timestamp in standard ISO-ish (YYYY-MM-DD HH:MM:SS) format
+ * @param {*} timestamp milliseconds from linux epoch.
+ * @returns return data in the formate 'YYYY-MM-DD 12:00:00'
+*/ 
 function getDate(timestamp) {
   const date = new Date(Number(timestamp));
   const month = String(date.getMonth() + 1).padStart(2, "0");
